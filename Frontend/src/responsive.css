@@ -1,6 +1,4 @@
 
-   /* responsive.css this make ass page responsive */
-  
 
 /* Mobile browsers: 100vh includes the address bar, 100dvh does not */
 @supports (height: 100dvh) {

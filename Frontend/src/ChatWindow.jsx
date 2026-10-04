@@ -1,6 +1,6 @@
 import "./ChatWindow.css";
 import Chat from "./Chat.jsx";
-import AuthView from "./AuthView.jsx"; // AuthView import kiya
+import AuthView from "./AuthView.jsx"; 
 import { MyContext } from "./MyContext.jsx";
 import { useContext, useState, useEffect, useRef } from "react";
 import { ScaleLoader } from "react-spinners";
@@ -17,7 +17,7 @@ function ChatWindow() {
     const controllerRef = useRef(null);
     const profileRef = useRef(null);
 
-    // --- AUTH & LIMIT STATES ---
+    //  AUTH & LIMIT STATES 
     const [token, setToken] = useState(localStorage.getItem("token"));
     const [authModal, setAuthModal] = useState(null); // 'login' | 'signup' | null
     const [limitOver, setLimitOver] = useState(false);
@@ -36,11 +36,14 @@ function ChatWindow() {
         localStorage.removeItem("token");
         setToken(null);
         setIsOpen(false);
+        setLimitOver(false);
+        setErrorMsg("");
         resetChat();
     };
 
     const handleAuthSuccess = (newToken) => {
         setToken(newToken);
+        setErrorMsg("");
         resetChat();
         setAuthModal(null);
         setLimitOver(false);
@@ -50,7 +53,7 @@ function ChatWindow() {
     const getReply = async () => {
         if (!prompt.trim() || isBusy || limitOver) return;
 
-        // user login/signup pop if not authorised
+        
         if (!token) {
             setAuthModal("login");
             return;
@@ -68,7 +71,7 @@ function ChatWindow() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}` // Token attach kiya
+                Authorization: `Bearer ${token}` 
             },
             body: JSON.stringify({
                 message: prompt,
@@ -89,6 +92,7 @@ function ChatWindow() {
             if (response.status === 401) {
                 localStorage.removeItem("token");
                 setToken(null);
+                resetChat();
                 setAuthModal("login");
                 return;
             }
@@ -262,7 +266,7 @@ function ChatWindow() {
                         </div>
                     )}
                 </div>
-                <p className="info" style={{color:"red"}}>
+                <p className="info">
                     Zexabao.ai can make mistakes. Limited Token Access Per Day.
                 </p>
             </div>

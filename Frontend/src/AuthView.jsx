@@ -15,9 +15,25 @@ export default function AuthView({ onAuthSuccess, onClose, initialMode = "login"
     setErrorMsg("");
     setLoading(true);
 
-    const endpoint = isSignup ? "/api/signup" : "/api/login";
     try {
-      const res = await fetch(`${BACKEND_URL}${endpoint}`, {
+      // Sign up first (only in signup mode)
+      if (isSignup) {
+        const signupRes = await fetch(`${BACKEND_URL}/api/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const signupData = await signupRes.json();
+
+        if (!signupRes.ok) {
+          setErrorMsg(signupData.message || "Authentication failed");
+          return;
+        }
+      }
+
+      // Log in. After a signup this signs the new user in straight away,
+   
+      const res = await fetch(`${BACKEND_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -26,17 +42,13 @@ export default function AuthView({ onAuthSuccess, onClose, initialMode = "login"
 
       if (!res.ok) {
         setErrorMsg(data.message || "Authentication failed");
-        setLoading(false);
+        // Account was created but automatic login failed: show the login form
+        if (isSignup) setIsSignup(false);
         return;
       }
 
-      if (isSignup) {
-        alert("Account created successfully! Please log in.");
-        setIsSignup(false);
-      } else {
-        localStorage.setItem("token", data.token);
-        onAuthSuccess(data.token);
-      }
+      localStorage.setItem("token", data.token);
+      onAuthSuccess(data.token);
     } catch {
       setErrorMsg("Cannot connect to the server. Please try again.");
     } finally {
@@ -79,6 +91,7 @@ export default function AuthView({ onAuthSuccess, onClose, initialMode = "login"
           />
           <button type="submit" className="auth-submit" disabled={loading}>
             {loading ? "Processing..." : isSignup ? "Sign Up" : "Log In"}
+           
           </button>
         </form>
 

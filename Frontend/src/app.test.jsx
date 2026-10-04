@@ -3,7 +3,6 @@ import { cleanup } from "@testing-library/react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import App from "./App.jsx";
 
-// All jsx file tested together using react test library
 afterEach(cleanup);
 
 const json = (data, status = 200) => Promise.resolve({ ok: status >= 200 && status < 300, status, json: () => Promise.resolve(data) });
@@ -17,6 +16,7 @@ beforeEach(() => {
     calls.push({ url, opts });
     if (url.endsWith("/api/chat")) return chatHandler();
     if (url.endsWith("/api/login")) return json({ token: "newtoken" });
+    if (url.endsWith("/api/signup")) return json({ message: "Account created successfully" }, 201);
     if (url.includes("/api/thread/") && opts.method === "DELETE") return json({ ok: true });
     if (url.includes("/api/thread/")) return json([{ role: "user", content: "old question" }, { role: "assistant", content: "old answer" }]);
     if (url.endsWith("/api/thread")) return json(threads);
@@ -36,7 +36,7 @@ it("renders welcome screen and sidebar", () => {
   render(<App />);
   expect(screen.getByText("Hey! How can I help you today?")).toBeTruthy();
   expect(screen.getByText(/New Chat/)).toBeTruthy();
-  expect(document.querySelector(".index-panel")).toBeNull(); // Outline hidden on empty chat
+  expect(document.querySelector(".index-panel")).toBeNull(); 
 });
 
 it("logged out: sending opens login modal, no chat API call", async () => {
@@ -162,4 +162,110 @@ it("logout: clears token and resets to welcome screen", async () => {
   expect(localStorage.getItem("token")).toBeNull();
   await waitFor(() => expect(screen.queryByText("Hey! How can I help you today?")).not.toBeNull());
   expect(document.querySelector(".index-panel")).toBeNull();
+});
+
+// ---------- per-user isolation ----------
+it("logged out: sidebar shows no threads and never calls the thread API", () => {
+  threads = [{ threadId: "t1", title: "Someone else's chat" }];
+  render(<App />);
+  expect(calls.some((c) => c.url.endsWith("/api/thread"))).toBe(false);
+  expect(screen.queryByText("Someone else's chat")).toBeNull();
+});
+
+it("logout empties the sidebar thread list", async () => {
+  localStorage.setItem("token", "abc");
+  threads = [{ threadId: "t1", title: "My first chat" }];
+  render(<App />);
+  await screen.findByText("My first chat");
+  fireEvent.click(document.querySelector(".userIconDiv"));
+  fireEvent.click(screen.getByText("Log out"));
+  await waitFor(() => expect(screen.queryByText("My first chat")).toBeNull());
+});
+
+it("logout clears the daily-limit banner so the next user is not blocked", async () => {
+  localStorage.setItem("token", "abc");
+  chatHandler = () => json({}, 429);
+  render(<App />);
+  send("hi");
+  await screen.findByText(/Limit over today/);
+  fireEvent.click(document.querySelector(".userIconDiv"));
+  fireEvent.click(screen.getByText("Log out"));
+  await waitFor(() => expect(screen.queryByText(/Limit over today/)).toBeNull());
+  expect(screen.getByPlaceholderText("Ask anything").disabled).toBe(false);
+});
+
+it("401 from the server clears the old user's thread list", async () => {
+  localStorage.setItem("token", "bad");
+  threads = [{ threadId: "t1", title: "My first chat" }];
+  chatHandler = () => json({}, 401);
+  render(<App />);
+  await screen.findByText("My first chat");
+  send("hi");
+  await waitFor(() => expect(modal()).not.toBeNull());
+  await waitFor(() => expect(screen.queryByText("My first chat")).toBeNull());
+});
+
+it("a thread that the server refuses to delete stays in the list", async () => {
+  localStorage.setItem("token", "abc");
+  threads = [{ threadId: "t1", title: "My first chat" }];
+  render(<App />);
+  await screen.findByText("My first chat");
+  const original = globalThis.fetch;
+  globalThis.fetch = vi.fn((url, opts = {}) =>
+    opts.method === "DELETE" ? json({ error: "Thread not found" }, 404) : original(url, opts)
+  );
+  fireEvent.click(document.querySelector(".fa-trash"));
+  await waitFor(() =>
+    expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/thread/t1"), expect.objectContaining({ method: "DELETE" }))
+  );
+  expect(screen.getByText("My first chat")).toBeTruthy();
+});
+
+// ---------- signup goes straight into the app ----------
+const openSignup = () => {
+  fireEvent.click(document.querySelector(".userIconDiv"));
+  fireEvent.click(screen.getByText("Sign up"));
+};
+const fillAuthAndSubmit = () => {
+  fireEvent.change(screen.getByPlaceholderText("Email address"), { target: { value: "new@user.com" } });
+  fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: "pw123456" } });
+  fireEvent.click(document.querySelector(".auth-submit"));
+};
+
+it("signup logs the new user in straight away: no popup, no second click", async () => {
+  const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+  render(<App />);
+  openSignup();
+  fillAuthAndSubmit();
+  await waitFor(() => expect(localStorage.getItem("token")).toBe("newtoken"));
+  await waitFor(() => expect(modal()).toBeNull());
+  expect(alertSpy).not.toHaveBeenCalled();
+  const apiCalls = calls.map((c) => c.url.split("/api/")[1]).filter((u) => u === "signup" || u === "login");
+  expect(apiCalls).toEqual(["signup", "login"]);
+});
+
+it("signup failure (user exists) shows the error and stays on the form", async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = vi.fn((url, opts) =>
+    url.endsWith("/api/signup") ? json({ message: "User already exists" }, 400) : original(url, opts)
+  );
+  render(<App />);
+  openSignup();
+  fillAuthAndSubmit();
+  expect(await screen.findByText("User already exists")).toBeTruthy();
+  expect(localStorage.getItem("token")).toBeNull();
+  expect(modal()).not.toBeNull();
+});
+
+it("signup ok but automatic login fails: falls back to the login form with the error", async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = vi.fn((url, opts) =>
+    url.endsWith("/api/login") ? json({ message: "Invalid email or password" }, 400) : original(url, opts)
+  );
+  render(<App />);
+  openSignup();
+  fillAuthAndSubmit();
+  expect(await screen.findByText("Invalid email or password")).toBeTruthy();
+  expect(document.querySelector(".auth-heading").textContent).toMatch(/Log In/);
+  expect(localStorage.getItem("token")).toBeNull();
 });

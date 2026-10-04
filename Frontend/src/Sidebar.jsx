@@ -9,6 +9,11 @@ function Sidebar() {
     const {allThreads, setAllThreads, currThreadId, setNewChat, setPrompt, setReply, setCurrThreadId, setPrevChats,isSidebarOpen,setIsSidebarOpen} = useContext(MyContext);
 
     const getAllThreads = async () => {
+        // Logged out -> no threads to show (each chat belongs to a logged-in user)
+        if (!localStorage.getItem("token")) {
+            setAllThreads([]);
+            return;
+        }
         try {
             const response = await fetch(`${BACKEND_URL}/api/thread`, { headers: authHeaders() });
             const res = await response.json();
@@ -54,7 +59,8 @@ function Sidebar() {
 
     const deleteThread = async (threadId) => {
         try {
-            await fetch(`${BACKEND_URL}/api/thread/${threadId}`, {method: "DELETE", headers: authHeaders()});
+            const response = await fetch(`${BACKEND_URL}/api/thread/${threadId}`, {method: "DELETE", headers: authHeaders()});
+            if (!response.ok) return; // not deleted on the server -> keep it in the list
 
             //updated threads re-render
             setAllThreads(prev => prev.filter(thread => thread.threadId !== threadId));
@@ -72,9 +78,11 @@ function Sidebar() {
 
         <section className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
              
+             
           
             <button onClick={createNewChat}>
                 <small>New Chat......</small>
+               
                 <span><i className="fa-solid fa-pen-to-square"></i></span>
             </button>
 

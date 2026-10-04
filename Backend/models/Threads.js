@@ -22,6 +22,13 @@ const ThreadSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    index: true,
+  },
   geminiInteractionId: {
     type: String,
     default: null,
@@ -68,7 +75,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Both  models  compile and export :
+
 export const Thread = mongoose.model("Thread", ThreadSchema);
 export const User = mongoose.model("User", userSchema);
 

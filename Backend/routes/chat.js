@@ -8,6 +8,32 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 const DAILY_LIMIT = 5;
 
+// Auth guard: checks the Bearer token and loads the logged-in user into req.user
+const requireAuth = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "Please log in" });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ error: "Please log in" });
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    // Bad, tampered or expired token -> 401 so the frontend asks the user to log in again
+    if (["JsonWebTokenError", "TokenExpiredError", "NotBeforeError"].includes(err.name)) {
+      return res.status(401).json({ error: "Please log in" });
+    }
+    console.log(err);
+    res.status(500).json({ error: "Authentication failed" });
+  }
+};
+
 // AUTH ROUTES 
 
 // 1. SIGNUP: /api/signup
@@ -62,26 +88,13 @@ router.post("/login", async (req, res) => {
 
 // CHAT & THREAD ROUTES 
 
-// test route
-router.post("/test", async (req, res) => {
-  try {
-    const thread = new Thread({
-      threadId: "qwerty12345",
-      title: "New Thread",
-    });
-
-    const response = await thread.save();
-    res.send(response);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Failed to save in db" });
-  }
-});
-
 // Get all threads
-router.get("/thread", async (req, res) => {
+router.get("/thread", requireAuth, async (req, res) => {
   try {
-    const threads = await Thread.find({}).sort({ updatedAt: -1 });
+    // Only this user's threads, and only the fields the sidebar needs
+    const threads = await Thread.find({ userId: req.user._id })
+      .select("threadId title updatedAt")
+      .sort({ updatedAt: -1 });
     res.json(threads);
   } catch (err) {
     console.log(err);
@@ -90,11 +103,11 @@ router.get("/thread", async (req, res) => {
 });
 
 // specific thread message
-router.get("/thread/:threadId", async (req, res) => {
+router.get("/thread/:threadId", requireAuth, async (req, res) => {
   const { threadId } = req.params;
 
   try {
-    const thread = await Thread.findOne({ threadId });
+    const thread = await Thread.findOne({ threadId, userId: req.user._id });
     if (!thread) {
       return res.status(404).json({ error: "Thread not found" });
     }
@@ -106,11 +119,14 @@ router.get("/thread/:threadId", async (req, res) => {
 });
 
 // delete chat/chat history
-router.delete("/thread/:threadId", async (req, res) => {
+router.delete("/thread/:threadId", requireAuth, async (req, res) => {
   const { threadId } = req.params;
 
   try {
-    const deletedThread = await Thread.findOneAndDelete({ threadId });
+    const deletedThread = await Thread.findOneAndDelete({
+      threadId,
+      userId: req.user._id,
+    });
     if (!deletedThread) {
       return res.status(404).json({ error: "Thread not found" });
     }
@@ -121,47 +137,45 @@ router.delete("/thread/:threadId", async (req, res) => {
   }
 });
 
-// new chat+reply post route (DAILY LIMIT 429 CHECK INCLUDED)
-router.post("/chat", async (req, res) => {
+// new chat+reply post route (login required: thread + daily limit belong to this user only)
+router.post("/chat", requireAuth, async (req, res) => {
   const { threadId, message } = req.body;
-  const authHeader = req.headers.authorization;
+  const user = req.user;
 
   if (!threadId || !message) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    // limit check first then token send to header
-    if (authHeader) {
-      const token = authHeader.split(" ")[1];
-      const decoded = jwt.verify(token, JWT_SECRET);
-      const user = await User.findById(decoded.id);
+    let thread = await Thread.findOne({ threadId });
 
-      if (user) {
-        const now = new Date();
-        const lastReset = new Date(user.dailyUsage.lastReset);
-        const isSameDay = now.toDateString() === lastReset.toDateString();
-
-        if (!isSameDay) {
-          user.dailyUsage.count = 0;
-          user.dailyUsage.lastReset = now;
-        }
-
-        // Limit Accessed -> Status 429 
-        if (user.dailyUsage.count >= DAILY_LIMIT) {
-          return res.status(429).json({ error: "Limit over today" });
-        }
-
-        user.dailyUsage.count += 1;
-        await user.save();
-      }
+    // Someone else's thread id -> act as if it does not exist
+    if (thread && String(thread.userId) !== String(user._id)) {
+      return res.status(404).json({ error: "Thread not found" });
     }
 
-    let thread = await Thread.findOne({ threadId });
+    // Daily limit is stored on this user only
+    const now = new Date();
+    const lastReset = new Date(user.dailyUsage.lastReset);
+    const isSameDay = now.toDateString() === lastReset.toDateString();
+
+    if (!isSameDay) {
+      user.dailyUsage.count = 0;
+      user.dailyUsage.lastReset = now;
+    }
+
+    // Limit end  -> Status 429 bhejega
+    if (user.dailyUsage.count >= DAILY_LIMIT) {
+      return res.status(429).json({ error: "Limit over today" });
+    }
+
+    user.dailyUsage.count += 1;
+    await user.save();
 
     if (!thread) {
       thread = new Thread({
         threadId,
+        userId: user._id,
         title: message,
         messages: [{ role: "user", content: message }],
       });
