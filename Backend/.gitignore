@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+
+# Secrets - never push these
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build / cache
+dist
+build
+.cache
+coverage
+
+# Uploads / temp files (only if your app saves files locally)
+uploads
+tmp
+
+# Editor and OS files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.suo
+*.sw?

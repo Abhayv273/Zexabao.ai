@@ -1,0 +1,133 @@
+
+   /* responsive.css this make ass page responsive */
+  
+
+/* Mobile browsers: 100vh includes the address bar, 100dvh does not */
+@supports (height: 100dvh) {
+  .app, .chatWindow, .sidebar, .index-panel { height: 100dvh; }
+}
+
+/* Hidden by default (desktop looks exactly as before) */
+.mobile-menu-btn,
+.sidebar-backdrop { display: none; }
+
+/* ---------- Large monitors ---------- */
+@media (min-width: 1600px) {
+  .chats, .inputBox { max-width: 800px; }
+}
+
+/* ---------- Laptops 13-14" ---------- */
+@media (max-width: 1280px) {
+  .index-panel { width: 220px; flex: 0 0 220px; }
+}
+
+/* ---------- Small laptops / landscape tablets ---------- */
+@media (max-width: 1024px) {
+  .index-panel { width: 200px; flex: 0 0 200px; }
+  .sidebar { width: 240px; flex: 0 0 240px; }
+}
+
+/* ---------- Tablets (portrait) and phones: sidebar becomes a drawer ---------- */
+@media (max-width: 900px) {
+  .mobile-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 1px solid rgba(82, 196, 26, 0.35);
+    background-color: #17271c;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(290px, 85vw);
+    flex: none;
+    z-index: 1001;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  .chatWindow { width: 100%; min-width: 0; }
+  .navbar { padding: 0 12px; }
+
+  .chats { width: 100%; }
+
+  .chatInput { padding: 0 12px calc(4px + env(safe-area-inset-bottom, 0px)); }
+  .inputBox input {
+    font-size: 16px; /* stops iOS zoom on focus */
+    padding: 14px 48px 14px 16px;
+  }
+  .info { font-size: 0.7rem; text-align: center; }
+
+  /* long answers must never push the page sideways */
+  .gptDiv { overflow-wrap: anywhere; }
+  .gptDiv pre, .gptDiv table { max-width: 100%; overflow-x: auto; }
+  .gptDiv table { display: block; }
+  .gptDiv img { max-width: 100%; height: auto; }
+
+  /* limit-over banner (inline-styled) */
+  .chatWindow > div[style*="fit-content"] { max-width: calc(100% - 24px); }
+
+  /* smaller artwork so text stays readable */
+  .chatWindow { background-size: 320px 320px, 120px 100%, 120px 100%, cover; }
+
+  .auth-box { max-height: 92dvh; overflow-y: auto; }
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 480px) {
+  .chatWindow { background-size: 240px 240px, 70px 100%, 70px 100%, cover; }
+  .navbar-brand-dropdown::before { width: 100px; height: 30px; }
+  .dropdown { width: 150px; }
+  .userMessage { max-width: 92%; }
+  .welcome-heading { font-size: 18px; padding: 0 16px; }
+  .chat-welcome-sticker { width: 80px; }
+  .auth-box { padding: 1.8rem 1.25rem 1.5rem; }
+}
+
+/* ---------- Touch screens: no hover, so show the delete icon ---------- */
+@media (hover: none) {
+  .fa-trash { opacity: 0.7; }
+  .history li { padding-right: 36px; }
+}
+
+/* ---------- Short landscape phones ---------- */
+@media (max-height: 520px) and (orientation: landscape) {
+  .chats { padding: 3.5rem 0.75rem 4rem; }
+  .info { display: none; }
+  .chat-welcome-sticker { width: 60px; }
+  .welcome-heading { margin-top: 8px; font-size: 16px; }
+}
+
+
+/* Small tablets: slimmer Outline panel */
+@media (max-width: 768px) {
+  .index-panel { width: 170px; flex: 0 0 170px; }
+  .index-panel-row { font-size: 12.5px; }
+}
+
+/* Phones only: no room for the Outline panel */
+@media (max-width: 600px) {
+  .index-panel { display: none; }
+}

@@ -1,0 +1,159 @@
+.index-panel {
+  width: 260px;
+  height: 100vh;
+  flex: 0 0 260px;
+  background-color: #0a110c;
+  color: #8fa596;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border-left: 1px solid rgba(82, 196, 26, 0.16);
+  overflow: hidden;
+}
+
+.index-panel-header {
+  margin: 14px 14px 0 14px;
+  padding: 10px 14px;
+  background-color: #16241a;
+  color: #95de64;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid rgba(82, 196, 26, 0.35);
+  box-sizing: border-box;
+}
+
+.index-panel-list {
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 14px;
+  border-top: 1px solid rgba(82, 196, 26, 0.12);
+  flex-grow: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.index-panel-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.index-panel-row {
+  width: 100%;
+  padding: 9px 14px;
+  box-sizing: border-box;
+  color: #a8bcae;
+  font-size: 13.5px;
+  background-color: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.index-panel-row:hover {
+  background-color: rgba(82, 196, 26, 0.12);
+  color: #73d13d;
+}
+
+.index-panel {
+  width: 260px;
+  height: 100vh;
+  flex: 0 0 260px;
+  background-color: #0a110c;
+  color: #8fa596;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border-left: 1px solid rgba(82, 196, 26, 0.16);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Glowing Panda Eyes Effect in Sidebar/Log panel */
+.index-panel::after {
+  content: "";
+  position: absolute;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 40px;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 10px #52c41a);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 45'%3E%3Cellipse cx='45' cy='22' rx='20' ry='11' fill='%2352c41a'/%3E%3Cellipse cx='115' cy='22' rx='20' ry='11' fill='%2352c41a'/%3E%3Cellipse cx='45' cy='22' rx='6' ry='10' fill='%23051008'/%3E%3Cellipse cx='115' cy='22' rx='6' ry='10' fill='%23051008'/%3E%3Ccircle cx='48' cy='18' r='3' fill='%23b7eb8f'/%3E%3Ccircle cx='118' cy='18' r='3' fill='%23b7eb8f'/%3E%3C/svg%3E");
+  animation: eyeGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes eyeGlow {
+  0% { opacity: 0.4; filter: drop-shadow(0 0 4px #389e0d); }
+  50% { opacity: 0.95; filter: drop-shadow(0 0 14px #73d13d); }
+  100% { opacity: 0.5; filter: drop-shadow(0 0 6px #389e0d); }
+}
+
+.index-panel-header {
+  margin: 14px 14px 0 14px;
+  padding: 10px 14px;
+  background-color: #16241a;
+  color: #95de64;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid rgba(82, 196, 26, 0.35);
+  box-sizing: border-box;
+  z-index: 2;
+}
+
+.index-panel-list {
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 14px;
+  border-top: 1px solid rgba(82, 196, 26, 0.12);
+  flex-grow: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  z-index: 2;
+}
+
+.index-panel-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.index-panel-row {
+  width: 100%;
+  padding: 9px 14px;
+  box-sizing: border-box;
+  color: #a8bcae;
+  font-size: 13.5px;
+  background-color: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.index-panel-row:hover {
+  background-color: rgba(82, 196, 26, 0.12);
+  color: #73d13d;
+}

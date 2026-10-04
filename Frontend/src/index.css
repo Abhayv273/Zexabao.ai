@@ -1,0 +1,34 @@
+:root {
+  --panda-black: #121814;
+  --panda-dark: #1a241e;
+  --panda-card: #202e26;
+  --bamboo-light: #52c41a;
+  --bamboo-glow: #389e0d;
+  --bamboo-accent: #73d13d;
+  --text-main: #f0f7f2;
+  --text-muted: #8c9e91;
+  --border-bamboo: #2b4233;
+}
+
+body {
+  margin: 0;
+  background-color: var(--panda-black);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Custom Bamboo Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--panda-black);
+}
+::-webkit-scrollbar-thumb {
+  background: #2b4a36;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bamboo-light);
+}

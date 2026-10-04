@@ -1,0 +1,133 @@
+.sidebar {
+  background: linear-gradient(180deg, #101913 0%, #080f0b 100%);
+  color: #8fa596;
+  height: 100vh;
+  width: 260px;
+  display: flex;
+  flex: 0 0 260px;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  overflow: hidden; 
+  border-right: 1px solid rgba(82, 196, 26, 0.18);
+}
+
+button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: #17271c;
+  border: 1px solid rgba(82, 196, 26, 0.45);
+  cursor: pointer;
+  color: #c7ecc6;
+  flex-shrink: 0; 
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: #52c41a;
+  color: #080f0b;
+  border-color: #73d13d;
+  box-shadow: 0 0 14px rgba(82, 196, 26, 0.35);
+}
+
+button:hover span,
+button:hover i {
+  color: #080f0b !important;
+}
+
+.logo {
+  height: 25px;
+  width: 25px;
+  background-color: #eafbe7;
+  border-radius: 50%;
+}
+
+button span {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.history {
+  margin: 0 8px;
+  padding: 5px 0;
+  flex: 1; 
+  min-height: 0; 
+  overflow-y: auto; 
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.history::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.history li {
+  list-style-type: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  margin-bottom: 4px;
+  font-size: 13.5px;
+  color: #9cb1a2;
+  border-radius: 7px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 2px solid transparent;
+  transition: all 0.18s ease;
+}
+
+.history li:hover {
+  background-color: rgba(82, 196, 26, 0.12);
+  color: #f1fcf0;
+  border-left: 2px solid #52c41a;
+}
+
+.highlighted {
+  background-color: rgba(82, 196, 26, 0.18) !important;
+  border-radius: 7px;
+  color: #73d13d !important;
+  border-left: 2px solid #73d13d !important;
+}
+
+.sign {
+  padding: 12px 10px;
+  margin: 0 10px 10px 10px;
+  font-size: 13px;
+  text-align: center;
+  color: #6d8474;
+  border-top: 1px solid rgba(82, 196, 26, 0.15);
+  flex-shrink: 0; 
+}
+
+.sign p {
+  margin: 0;
+}
+
+.fa-trash {
+  opacity: 0;
+  position: absolute;
+  right: 10px;
+  transition: opacity 0.2s ease;
+}
+
+.history li:hover .fa-trash {
+  opacity: 1;
+  color: #a3b8aa;
+}
+
+.fa-trash:hover {
+  color: #ff7875 !important;
+}
+
