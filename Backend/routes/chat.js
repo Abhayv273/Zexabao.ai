@@ -6,7 +6,7 @@ import getGeminiAPIResponse from "../utils/geminiai.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
-const DAILY_LIMIT = 5;
+const DAILY_LIMIT = 10;
 
 // Auth guard: checks the Bearer token and loads the logged-in user into req.user
 const requireAuth = async (req, res, next) => {
@@ -168,6 +168,7 @@ router.post("/chat", requireAuth, async (req, res) => {
     if (user.dailyUsage.count >= DAILY_LIMIT) {
       return res.status(429).json({ error: "Limit over today" });
     }
+
 
     user.dailyUsage.count += 1;
     await user.save();
