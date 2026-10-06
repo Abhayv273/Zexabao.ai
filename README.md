@@ -8,6 +8,8 @@ A full-stack AI chat application built with the MERN stack and the Google Gemini
 
 > **Live demo:** https://zexabaoai.vercel.app/
 
+---
+
 <img width="1279" height="631" alt="image" src="https://github.com/user-attachments/assets/30f166f4-e614-41ad-8993-bc6db7b44cbd" />
 <img width="1279" height="720" alt="testbackend" src="https://github.com/user-attachments/assets/99740a2d-4c03-49ec-9408-30aff62a5e14" />
 <img width="1279" height="753" alt="test" src="https://github.com/user-attachments/assets/2a963989-f631-4c07-9954-f74bdeb6a854" />
@@ -23,7 +25,7 @@ Zexabao.ai is a small but complete product, not a tutorial clone. It covers the 
 - A **Node.js / Express** REST API with email and password auth (bcrypt + JWT), an auth guard on every private route, per-user data and a per-user daily limit.
 - A **MongoDB** database modelled with Mongoose, where every thread has an owner.
 - **Google Gemini** integration that keeps conversation context between messages.
-- **Automated tests** on both sides: 21 UI tests (Vitest) and 50 API tests (Jest).
+- **Automated tests** on both sides: 30+ includng UI tests (Vitest) and API tests (Jest).
 
 ---
 
