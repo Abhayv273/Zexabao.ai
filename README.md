@@ -1,3 +1,6 @@
+
+
+
 # **Zexabao.ai-** Idea to Intelligence
 Your Own Friendly Interface Chat Bot 🐼
 
@@ -6,6 +9,8 @@ A full-stack AI chat application built with the MERN stack and the Google Gemini
 > **Live demo:** https://zexabaoai.vercel.app/
 
 <img width="1279" height="631" alt="image" src="https://github.com/user-attachments/assets/30f166f4-e614-41ad-8993-bc6db7b44cbd" />
+<img width="1279" height="720" alt="testbackend" src="https://github.com/user-attachments/assets/99740a2d-4c03-49ec-9408-30aff62a5e14" />
+<img width="1279" height="753" alt="test" src="https://github.com/user-attachments/assets/2a963989-f631-4c07-9954-f74bdeb6a854" />
 
 
 ---
